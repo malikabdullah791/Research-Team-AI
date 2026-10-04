@@ -1,11 +1,32 @@
+```python
+# ---------------------------------------------------------
+# IMPORTANT: CrewAI + Groq compatibility patch
+# ---------------------------------------------------------
+# CrewAI currently adds "cache_breakpoint" to messages.
+# Groq does not accept this field.
+# This patch disables that marker before CrewAI agents run.
+
+try:
+    import crewai.llms.cache as crew_cache
+
+    crew_cache.mark_cache_breakpoint = lambda message: message
+
+except Exception:
+    pass
+
+
+# ---------------------------------------------------------
+# Imports
+# ---------------------------------------------------------
+
 import streamlit as st
 
 from crew import create_research_crew
 
 
-# --------------------------------------------------
-# PAGE CONFIGURATION
-# --------------------------------------------------
+# ---------------------------------------------------------
+# Streamlit Page Configuration
+# ---------------------------------------------------------
 
 st.set_page_config(
     page_title="AI Research Team",
@@ -14,9 +35,9 @@ st.set_page_config(
 )
 
 
-# --------------------------------------------------
-# TITLE
-# --------------------------------------------------
+# ---------------------------------------------------------
+# Header
+# ---------------------------------------------------------
 
 st.title("🔬 AI Research Team")
 
@@ -26,42 +47,43 @@ st.write(
 )
 
 
-# --------------------------------------------------
-# SIDEBAR
-# --------------------------------------------------
+# ---------------------------------------------------------
+# Sidebar
+# ---------------------------------------------------------
 
 with st.sidebar:
 
-    st.header("🤖 AI Team")
+    st.header("🤖 AI Research Team")
 
     st.write("""
-    **Researcher**
-    
-    Gathers research findings.
+    **1. Researcher**
 
-    **Analyst**
-    
-    Identifies themes and research gaps.
+    Gathers and organizes research findings.
 
-    **Writer**
-    
-    Creates the research report.
+    **2. Analyst**
 
-    **Reviewer**
-    
+    Analyzes findings and identifies themes and gaps.
+
+    **3. Writer**
+
+    Creates a structured research report.
+
+    **4. Reviewer**
+
     Reviews and improves the final report.
     """)
 
     st.divider()
 
     st.info(
-        "Workflow: Research → Analyze → Write → Review"
+        "Workflow:\n\n"
+        "Research → Analyze → Write → Review"
     )
 
 
-# --------------------------------------------------
-# USER INPUT
-# --------------------------------------------------
+# ---------------------------------------------------------
+# Topic Input
+# ---------------------------------------------------------
 
 topic = st.text_area(
     "Enter your research topic",
@@ -73,9 +95,9 @@ topic = st.text_area(
 )
 
 
-# --------------------------------------------------
-# RUN BUTTON
-# --------------------------------------------------
+# ---------------------------------------------------------
+# Research Button
+# ---------------------------------------------------------
 
 if st.button(
     "🚀 Start AI Research",
@@ -94,30 +116,40 @@ if st.button(
         try:
 
             with st.spinner(
-                "AI Research Team is working..."
+                "🤖 AI Research Team is working..."
             ):
 
+                # Create the Crew
                 research_crew = create_research_crew(
-                    topic
+                    topic.strip()
                 )
 
+                # Run the Crew
                 result = research_crew.kickoff()
 
+            # -------------------------------------------------
+            # Success
+            # -------------------------------------------------
+
             st.success(
-                "Research completed successfully!"
+                "✅ Research completed successfully!"
             )
 
             st.divider()
 
-            st.subheader("📄 Final Research Report")
+            st.subheader(
+                "📄 Final Research Report"
+            )
 
             st.markdown(str(result))
+
 
         except Exception as e:
 
             st.error(
-                "An error occurred while running "
+                "❌ An error occurred while running "
                 "the AI Research Team."
             )
 
             st.exception(e)
+```
