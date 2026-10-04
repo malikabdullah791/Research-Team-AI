@@ -1,23 +1,31 @@
+```python
 import os
 
 from dotenv import load_dotenv
 from crewai import Agent, LLM
 
+
+# ---------------------------------------------------------
+# Load environment variables
+# ---------------------------------------------------------
+
 load_dotenv()
 
 
+# ---------------------------------------------------------
+# Create LLM
+# ---------------------------------------------------------
+
 def get_llm():
-    """
-    Create the LLM used by all agents.
-    The API key is loaded from the environment.
-    """
 
     api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
+
         raise ValueError(
             "GROQ_API_KEY is missing. "
-            "Please add it to your .env file."
+            "Add it to your .env file locally "
+            "or Streamlit Secrets in deployment."
         )
 
     return LLM(
@@ -27,80 +35,124 @@ def get_llm():
     )
 
 
+# ---------------------------------------------------------
+# Create Agents
+# ---------------------------------------------------------
+
 def create_agents():
 
     llm = get_llm()
 
-    # Agent 1
+
+    # -----------------------------------------------------
+    # Researcher
+    # -----------------------------------------------------
+
     researcher = Agent(
         role="Research Specialist",
+
         goal=(
             "Gather accurate, relevant and well-organized "
             "information about the research topic."
         ),
+
         backstory=(
             "You are an experienced research specialist. "
             "You collect important information, identify "
-            "key facts, concepts and evidence, and organize "
-            "your findings clearly for another analyst."
+            "key concepts and organize research findings "
+            "for further analysis."
         ),
+
         llm=llm,
+
         verbose=True,
+
         allow_delegation=False
     )
 
-    # Agent 2
+
+    # -----------------------------------------------------
+    # Analyst
+    # -----------------------------------------------------
+
     analyst = Agent(
         role="Research Analyst",
+
         goal=(
-            "Analyze research findings, identify important "
-            "themes, relationships, trends and knowledge gaps."
+            "Analyze research findings and identify "
+            "important themes, insights and research gaps."
         ),
+
         backstory=(
             "You are a critical research analyst. "
-            "You examine research findings carefully and "
-            "separate important insights from less useful information. "
-            "You identify themes, contradictions and research gaps."
+            "You examine research findings carefully, "
+            "identify patterns and discover knowledge gaps."
         ),
+
         llm=llm,
+
         verbose=True,
+
         allow_delegation=False
     )
 
-    # Agent 3
+
+    # -----------------------------------------------------
+    # Writer
+    # -----------------------------------------------------
+
     writer = Agent(
         role="Research Report Writer",
+
         goal=(
-            "Transform research findings and analysis into "
-            "a clear, structured and professional research report."
+            "Create a clear, structured and professional "
+            "research report."
         ),
+
         backstory=(
             "You are an expert technical writer. "
-            "You convert complex research information into "
-            "well-structured reports that are easy to understand "
-            "while maintaining professional quality."
+            "You transform research findings and analysis "
+            "into a professional research report."
         ),
+
         llm=llm,
+
         verbose=True,
+
         allow_delegation=False
     )
 
-    # Agent 4
+
+    # -----------------------------------------------------
+    # Reviewer
+    # -----------------------------------------------------
+
     reviewer = Agent(
         role="Research Quality Reviewer",
+
         goal=(
-            "Review the research report for accuracy, clarity, "
-            "structure, completeness and logical consistency."
+            "Review and improve the research report "
+            "for clarity, accuracy and completeness."
         ),
+
         backstory=(
             "You are a senior research reviewer. "
-            "You critically inspect reports, identify weaknesses "
-            "and improve the final document so it is clear, "
-            "professional and useful."
+            "You identify weaknesses, remove unnecessary "
+            "repetition and improve the quality of reports."
         ),
+
         llm=llm,
+
         verbose=True,
+
         allow_delegation=False
     )
 
-    return researcher, analyst, writer, reviewer
+
+    return (
+        researcher,
+        analyst,
+        writer,
+        reviewer
+    )
+```
